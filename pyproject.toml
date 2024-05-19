@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "ar-rhythm"
+version = "0.1.0"
+description = ""
+authors = ["chanon-mike <zzmikezz8520@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pygame = "^2.5.2"
+opencv-python = "^4.9.0.80"
+ruff = "^0.4.4"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
