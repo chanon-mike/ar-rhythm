@@ -3,6 +3,8 @@ import numpy as np
 import pygame
 
 from motion.motion import Motion
+from rhythm.arrow import DownArrow, LeftArrow, RightArrow, UpArrow
+from rhythm.heart import Heart
 
 
 class Game:
@@ -12,14 +14,41 @@ class Game:
         self.combo = 0
         self.score = 0
         self.missed = 0
+        self.arrows = []
 
         self.cap = cv2.VideoCapture(0)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 720)
-        self.screen = pygame.display.set_mode((640, 640), pygame.SCALED)
 
         pygame.init()
         pygame.display.set_caption("OpenCV camera stream on Pygame")
+
+        self.screen = pygame.display.set_mode((640, 640), pygame.SCALED)
+        self.clock = pygame.time.Clock()
+
+        self.init_arrows()
+        self.init_heart()
+
+    def init_heart(self):
+        frame_width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        frame_height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        self.heart = Heart(frame_width // 2, frame_height //
+                           2)  # Center the heart
+
+    # TODO: Generate arrows method
+    def init_arrows(self):
+        frame_width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        frame_height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+        arrow_list = [
+            UpArrow(frame_width // 2, frame_height),  # Bottom
+            DownArrow(frame_width // 2, 0),  # Top
+            LeftArrow(frame_width, frame_height // 2),  # Right
+            RightArrow(0, frame_height // 2),  # Left
+        ]
+
+        for arrow in arrow_list:
+            self.arrows.append(arrow)
 
     def run(self):
         with self.motion.mp_hands.Hands(
@@ -55,19 +84,25 @@ class Game:
 
                 self.screen.blit(frame_surface, (frame_x, frame_y))
 
-                # Add any Pygame overlay elements here
-                # pygame.draw.rect(screen, (255, 0, 0), pygame.Rect(10, 10, 100, 50), 2)
-                # font = pygame.font.Font(None, 36)
-                # text_surface = font.render("Direction Overlay", True, (255, 255, 255))
-                # screen.blit(text_surface, (120, 10))
+                self.update_arrows()
+                self.draw_arrows()
+                self.heart.draw(self.screen)
 
                 pygame.display.update()
 
-                # Flip the image horizontally for a selfie-view display.
-                # cv2.imshow("MediaPipe Hands", image)
+                self.clock.tick(60)  # Limit to 60 frames per second
+
                 if cv2.waitKey(5) & 0xFF == 27:
                     break
         self._quit()
+
+    def update_arrows(self):
+        for arrow in self.arrows:
+            arrow.update()
+
+    def draw_arrows(self):
+        for arrow in self.arrows:
+            arrow.draw(self.screen)
 
     def _quit(self):
         self.cap.release()
