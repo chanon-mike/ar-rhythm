@@ -14,7 +14,9 @@ class Game:
         self.missed = 0
 
         self.cap = cv2.VideoCapture(0)
-        self.screen = pygame.display.set_mode()
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 720)
+        self.screen = pygame.display.set_mode((640, 640), pygame.SCALED)
 
         pygame.init()
         pygame.display.set_caption("OpenCV camera stream on Pygame")
@@ -27,6 +29,9 @@ class Game:
             min_tracking_confidence=0.5,
         ) as hands:
             while self.cap.isOpened():
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        running = False
                 success, image = self.cap.read()
                 if not success:
                     continue
@@ -38,7 +43,17 @@ class Game:
                 image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                 image_rgb = np.rot90(image_rgb)
                 frame_surface = pygame.surfarray.make_surface(image_rgb)
-                self.screen.blit(frame_surface, (0, 0))
+
+                # Get the dimensions of the frame
+                frame_rect = frame_surface.get_rect()
+
+                # Calculate the position to place the frame at the center of the screen
+                frame_x = (640 - frame_rect.width) // 2
+                frame_y = (640 - frame_rect.height) // 2
+
+                # Fill the screen with black color
+
+                self.screen.blit(frame_surface, (frame_x, frame_y))
 
                 # Add any Pygame overlay elements here
                 # pygame.draw.rect(screen, (255, 0, 0), pygame.Rect(10, 10, 100, 50), 2)
@@ -49,10 +64,9 @@ class Game:
                 pygame.display.update()
 
                 # Flip the image horizontally for a selfie-view display.
-                cv2.imshow("MediaPipe Hands", image)
+                # cv2.imshow("MediaPipe Hands", image)
                 if cv2.waitKey(5) & 0xFF == 27:
                     break
-
         self._quit()
 
     def _quit(self):

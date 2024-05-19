@@ -37,7 +37,8 @@ class Motion:
                     1 - index_finger_tip.y,
                 )
 
-                direction = self._calculate_direction(wrist_coords, index_finger_tip_coords)
+                direction = self._calculate_direction(
+                    wrist_coords, index_finger_tip_coords)
 
                 # Add the direction text to the image
                 cv2.putText(
@@ -50,12 +51,12 @@ class Motion:
                     2,
                     cv2.LINE_AA,
                 )
-
         return image
 
     # Calculate direction of hand based on the wrist and index finger tip coordinates
     def _calculate_direction(self, wrist, index_finger_tip):
-        vector = np.array([index_finger_tip[0] - wrist[0], index_finger_tip[1] - wrist[1]])
+        vector = np.array([index_finger_tip[0] - wrist[0],
+                          index_finger_tip[1] - wrist[1]])
         angle = np.arctan2(vector[1], vector[0]) * 180 / np.pi
 
         if -45 <= angle <= 45:
