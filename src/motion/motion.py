@@ -9,7 +9,20 @@ class Motion:
         self.mp_drawing_styles = mp.solutions.drawing_styles
         self.mp_hands = mp.solutions.hands
 
+    def extract_hand_coords(self, hand_landmarks):
+        wrist = hand_landmarks.landmark[self.mp_hands.HandLandmark.WRIST]
+        index_finger_tip = hand_landmarks.landmark[self.mp_hands.HandLandmark.INDEX_FINGER_TIP]
+        wrist_coords = (1 - wrist.x, 1 - wrist.y)
+        index_finger_tip_coords = (
+            1 - index_finger_tip.x,
+            1 - index_finger_tip.y,
+        )
+        return wrist_coords, index_finger_tip_coords
+
     def process_hand(self, image, hands):
+        wrist_coords = (0, 0)
+        index_finger_tip_coords = (0, 0)
+
         # To improve performance, optionally mark the image as not writeable to pass by reference.
         image.flags.writeable = False
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -37,8 +50,7 @@ class Motion:
                     1 - index_finger_tip.y,
                 )
 
-                direction = self._calculate_direction(
-                    wrist_coords, index_finger_tip_coords)
+                direction = self.calculate_direction(wrist_coords, index_finger_tip_coords)
 
                 # Add the direction text to the image
                 cv2.putText(
@@ -51,19 +63,18 @@ class Motion:
                     2,
                     cv2.LINE_AA,
                 )
-        return image
+        return image, wrist_coords, index_finger_tip_coords
 
     # Calculate direction of hand based on the wrist and index finger tip coordinates
-    def _calculate_direction(self, wrist, index_finger_tip):
-        vector = np.array([index_finger_tip[0] - wrist[0],
-                          index_finger_tip[1] - wrist[1]])
+    def calculate_direction(self, wrist, index_finger_tip):
+        vector = np.array([index_finger_tip[0] - wrist[0], index_finger_tip[1] - wrist[1]])
         angle = np.arctan2(vector[1], vector[0]) * 180 / np.pi
 
         if -45 <= angle <= 45:
-            return "Right"
+            return "RIGHT"
         elif 45 < angle <= 135:
-            return "Up"
+            return "UP"
         elif -135 <= angle < -45:
-            return "Down"
+            return "DOWN"
         else:
-            return "Left"
+            return "LEFT"

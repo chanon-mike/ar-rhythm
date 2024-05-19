@@ -1,3 +1,4 @@
+from typing import Literal
 import cv2
 import numpy as np
 import pygame
@@ -66,7 +67,7 @@ class Game:
                 if not success:
                     continue
 
-                image = self.motion.process_hand(image, hands)
+                image, wrist_coords, index_finger_tip_coords = self.motion.process_hand(image, hands)
                 image = cv2.flip(image, 1)
 
                 # Convert the image from OpenCV to Pygame format
@@ -82,6 +83,10 @@ class Game:
                 # frame_y = (640 - frame_rect.height) // 2
                 # # Fill the screen with black color
                 # self.screen.blit(frame_surface, (frame_x, frame_y))
+
+                # Detect the direction of the hand
+                direction = self.motion.calculate_direction(wrist_coords, index_finger_tip_coords)
+                self.detect_and_collide(direction)
 
                 self.update_arrows()
                 self.draw_arrows()
@@ -102,6 +107,24 @@ class Game:
     def draw_arrows(self):
         for arrow in self.arrows:
             arrow.draw(self.screen)
+
+    def remove_arrow(self):
+        self.arrows.pop(0)
+        self.combo += 1
+        self.score += 1
+
+    def detect_and_collide(self, direction: Literal["UP", "DOWN", "LEFT", "RIGHT"]):
+        try:
+            if (
+                (direction == "UP" and isinstance(self.arrows[0], DownArrow))
+                or (direction == "DOWN" and isinstance(self.arrows[0], UpArrow))
+                or (direction == "LEFT" and isinstance(self.arrows[0], RightArrow))
+                or (direction == "RIGHT" and isinstance(self.arrows[0], LeftArrow))
+            ) and self.arrows[0].rect.colliderect(self.heart.rect):
+                self.remove_arrow()
+            print(f"Combo: {self.combo}, Score: {self.score}")
+        except IndexError:
+            print("Arrow list is empty.")
 
     def _quit(self):
         self.cap.release()
