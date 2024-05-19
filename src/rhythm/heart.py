@@ -1,6 +1,6 @@
 import pygame
 
-IMAGE_SIZE_PX = 100
+IMAGE_SIZE_PX = 50
 
 
 class Heart:

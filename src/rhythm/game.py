@@ -28,7 +28,6 @@ class Game:
         pygame.display.set_caption("OpenCV camera stream on Pygame")
 
         self.screen = pygame.display.set_mode((640, 640), pygame.SCALED)
-        # self.screen = pygame.display.set_mode()
         self.clock = pygame.time.Clock()
         self.arrow_timer = 0
 
@@ -42,8 +41,7 @@ class Game:
     def init_heart(self):
         frame_width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         frame_height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        self.heart = Heart(frame_width // 2, frame_height //
-                           2)  # Center the heart
+        self.heart = Heart(frame_width // 2, frame_height // 2)  # Center the heart
 
     def run(self):
         with self.motion.mp_hands.Hands(
@@ -57,8 +55,7 @@ class Game:
                 if not success:
                     continue
 
-                image, wrist_coords, index_finger_tip_coords = self.motion.process_hand(
-                    image, hands)
+                image, wrist_coords, index_finger_tip_coords = self.motion.process_hand(image, hands)
 
                 # Convert the image from OpenCV to Pygame format
                 image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -67,18 +64,15 @@ class Game:
                 self.screen.blit(frame_surface, (0, 0))
 
                 # Detect the direction of the hand
-                direction = self.motion.calculate_direction(
-                    wrist_coords, index_finger_tip_coords)
+                direction = self.motion.calculate_direction(wrist_coords, index_finger_tip_coords)
                 self.detect_and_collide(direction)
 
                 self.update_arrows()
                 self.draw_arrows()
                 self.heart.draw(self.screen)
 
-                self.draw_text(f"Combo: {self.combo}",
-                               (10, 10))  # コンボ数を画面の左上に描画
-                # スコアを画面の左上から50px下に描画
-                self.draw_text(f"Score: {self.score}", (10, 50))
+                self.draw_text(f"Combo: {self.combo}", (10, 10))  # コンボ数を画面の左上に描画
+                self.draw_text(f"Score: {self.score}", (10, 50))  # スコアを画面の左上から50px下に描画
 
                 pygame.display.update()
                 self.update_arrow_timer()
@@ -123,18 +117,25 @@ class Game:
         self.combo += 1
         self.score += 1
 
+    def reset_combo(self):
+        self.arrows.pop(0)
+        self.combo = 0
+        self.missed += 1
+
     def detect_and_collide(self, direction: Literal["UP", "DOWN", "LEFT", "RIGHT"]):
-        if (
-            len(self.arrows) > 0
-            and self.arrows[0].rect.colliderect(self.heart.rect)
-            and (
-                (direction == "UP" and isinstance(self.arrows[0], DownArrow))
-                or (direction == "DOWN" and isinstance(self.arrows[0], UpArrow))
-                or (direction == "LEFT" and isinstance(self.arrows[0], RightArrow))
-                or (direction == "RIGHT" and isinstance(self.arrows[0], LeftArrow))
-            )
-        ):
-            self.remove_arrow()
+        for arrow in self.arrows:
+            if arrow.rect.colliderect(self.heart.rect) and (
+                (direction == "UP" and isinstance(arrow, DownArrow))
+                or (direction == "DOWN" and isinstance(arrow, UpArrow))
+                or (direction == "LEFT" and isinstance(arrow, RightArrow))
+                or (direction == "RIGHT" and isinstance(arrow, LeftArrow))
+            ):
+                self.remove_arrow()
+                return
+
+            if arrow.rect.colliderect(self.heart.rect):
+                self.reset_combo()
+                return
 
     def _quit(self):
         self.cap.release()
