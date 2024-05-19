@@ -1,8 +1,8 @@
+import random
 from typing import Literal
 import cv2
 import numpy as np
 import pygame
-import random
 
 from motion.motion import Motion
 from rhythm.arrow import DownArrow, LeftArrow, RightArrow, UpArrow
@@ -30,8 +30,8 @@ class Game:
         # self.screen = pygame.display.set_mode((640, 640), pygame.SCALED)
         self.screen = pygame.display.set_mode()
         self.clock = pygame.time.Clock()
+        self.arrow_timer = 0
 
-        self.init_arrows()
         self.init_heart()
         self.font = pygame.font.Font(None, 36)
 
@@ -42,23 +42,7 @@ class Game:
     def init_heart(self):
         frame_width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         frame_height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        self.heart = Heart(frame_width // 2, frame_height //
-                           2)  # Center the heart
-
-    # TODO: Generate arrows method
-    def init_arrows(self):
-        frame_width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        frame_height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-
-        arrow_list = [
-            UpArrow(frame_width // 2, frame_height),  # Bottom
-            DownArrow(frame_width // 2, 0),  # Top
-            LeftArrow(frame_width, frame_height // 2),  # Right
-            RightArrow(0, frame_height // 2),  # Left
-        ]
-
-        for arrow in arrow_list:
-            self.arrows.append(arrow)
+        self.heart = Heart(frame_width // 2, frame_height // 2)  # Center the heart
 
     def run(self):
         with self.motion.mp_hands.Hands(
@@ -72,8 +56,7 @@ class Game:
                 if not success:
                     continue
 
-                image, wrist_coords, index_finger_tip_coords = self.motion.process_hand(
-                    image, hands)
+                image, wrist_coords, index_finger_tip_coords = self.motion.process_hand(image, hands)
                 image = cv2.flip(image, 1)
 
                 # Convert the image from OpenCV to Pygame format
@@ -82,17 +65,8 @@ class Game:
                 frame_surface = pygame.surfarray.make_surface(image_rgb)
                 self.screen.blit(frame_surface, (0, 0))
 
-                # Get the dimensions of the frame
-                # frame_rect = frame_surface.get_rect()
-                # # Calculate the position to place the frame at the center of the screen
-                # frame_x = (640 - frame_rect.width) // 2
-                # frame_y = (640 - frame_rect.height) // 2
-                # # Fill the screen with black color
-                # self.screen.blit(frame_surface, (frame_x, frame_y))
-
                 # Detect the direction of the hand
-                direction = self.motion.calculate_direction(
-                    wrist_coords, index_finger_tip_coords)
+                direction = self.motion.calculate_direction(wrist_coords, index_finger_tip_coords)
                 self.detect_and_collide(direction)
 
                 self.update_arrows()
@@ -103,12 +77,34 @@ class Game:
                 self.draw_text(f"Score: {self.score}", (10, 50))  # スコアを画面の左上から50px下に描画
 
                 pygame.display.update()
-
+                self.update_arrow_timer()
                 self.clock.tick(60)  # Limit to 60 frames per second
 
                 if cv2.waitKey(5) & 0xFF == 27:
                     break
         self._quit()
+
+    def add_arrow(self):
+        frame_width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        frame_height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+        arrow_type = random.choice([UpArrow, DownArrow, LeftArrow, RightArrow])
+        if arrow_type == UpArrow:
+            arrow = UpArrow(frame_width // 2, frame_height)
+        elif arrow_type == DownArrow:
+            arrow = DownArrow(frame_width // 2, 0)
+        elif arrow_type == LeftArrow:
+            arrow = LeftArrow(frame_width, frame_height // 2)
+        else:
+            arrow = RightArrow(0, frame_height // 2)
+
+        self.arrows.append(arrow)
+
+    def update_arrow_timer(self):
+        self.arrow_timer += self.clock.get_time()
+        if self.arrow_timer >= 1000:  # 1000 milliseconds
+            self.add_arrow()
+            self.arrow_timer = 0
 
     def update_arrows(self):
         for arrow in self.arrows:
@@ -124,17 +120,17 @@ class Game:
         self.score += 1
 
     def detect_and_collide(self, direction: Literal["UP", "DOWN", "LEFT", "RIGHT"]):
-        try:
-            if (
+        if (
+            len(self.arrows) > 0
+            and self.arrows[0].rect.colliderect(self.heart.rect)
+            and (
                 (direction == "UP" and isinstance(self.arrows[0], DownArrow))
                 or (direction == "DOWN" and isinstance(self.arrows[0], UpArrow))
                 or (direction == "LEFT" and isinstance(self.arrows[0], RightArrow))
                 or (direction == "RIGHT" and isinstance(self.arrows[0], LeftArrow))
-            ) and self.arrows[0].rect.colliderect(self.heart.rect):
-                self.remove_arrow()
-            print(f"Combo: {self.combo}, Score: {self.score}")
-        except IndexError:
-            print("Arrow list is empty.")
+            )
+        ):
+            self.remove_arrow()
 
     def _quit(self):
         self.cap.release()
