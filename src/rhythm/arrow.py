@@ -1,5 +1,4 @@
 import pygame
-import random
 
 SPEED_PX = 3.67
 IMAGE_SIZE_PX = 100
@@ -8,10 +7,8 @@ IMAGE_SIZE_PX = 100
 class Arrow:
     def __init__(self, x: float, y: float, speed_x: float, speed_y: float, image_path: str) -> None:
         self.image = pygame.image.load(image_path)
-        self.image = pygame.transform.scale(
-            self.image, (IMAGE_SIZE_PX, IMAGE_SIZE_PX))
-        self.rect = self.image.get_rect(
-            topleft=(x-IMAGE_SIZE_PX//2, y-IMAGE_SIZE_PX//2))
+        self.image = pygame.transform.scale(self.image, (IMAGE_SIZE_PX, IMAGE_SIZE_PX))
+        self.rect = self.image.get_rect(topleft=(x - IMAGE_SIZE_PX // 2, y - IMAGE_SIZE_PX // 2))
         self.speed_x = speed_x
         self.speed_y = speed_y
 
