@@ -2,4 +2,5 @@
   "[python]": {
     "editor.formatOnSave": true,
   },
+  "editor.tabSize": 4
 }
