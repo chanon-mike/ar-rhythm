@@ -1,7 +1,7 @@
 import pygame
+import random
 
-
-SPEED_PX = 1.67
+SPEED_PX = 3.67
 IMAGE_SIZE_PX = 100
 
 

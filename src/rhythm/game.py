@@ -1,10 +1,14 @@
 import cv2
 import numpy as np
 import pygame
+import random
 
 from motion.motion import Motion
 from rhythm.arrow import DownArrow, LeftArrow, RightArrow, UpArrow
 from rhythm.heart import Heart
+
+SPEED_PX = 3.67
+IMAGE_SIZE_PX = 100
 
 
 class Game:
@@ -102,3 +106,4 @@ class Game:
     def _quit(self):
         self.cap.release()
         pygame.quit()
+
