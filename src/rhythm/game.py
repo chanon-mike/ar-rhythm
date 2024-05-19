@@ -17,13 +17,14 @@ class Game:
         self.arrows = []
 
         self.cap = cv2.VideoCapture(0)
-        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 720)
+        # self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+        # self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 720)
 
         pygame.init()
         pygame.display.set_caption("OpenCV camera stream on Pygame")
 
-        self.screen = pygame.display.set_mode((640, 640), pygame.SCALED)
+        # self.screen = pygame.display.set_mode((640, 640), pygame.SCALED)
+        self.screen = pygame.display.set_mode()
         self.clock = pygame.time.Clock()
 
         self.init_arrows()
@@ -32,8 +33,7 @@ class Game:
     def init_heart(self):
         frame_width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         frame_height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        self.heart = Heart(frame_width // 2, frame_height //
-                           2)  # Center the heart
+        self.heart = Heart(frame_width // 2, frame_height // 2)  # Center the heart
 
     # TODO: Generate arrows method
     def init_arrows(self):
@@ -58,9 +58,6 @@ class Game:
             min_tracking_confidence=0.5,
         ) as hands:
             while self.cap.isOpened():
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        running = False
                 success, image = self.cap.read()
                 if not success:
                     continue
@@ -72,17 +69,15 @@ class Game:
                 image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                 image_rgb = np.rot90(image_rgb)
                 frame_surface = pygame.surfarray.make_surface(image_rgb)
+                self.screen.blit(frame_surface, (0, 0))
 
                 # Get the dimensions of the frame
-                frame_rect = frame_surface.get_rect()
-
-                # Calculate the position to place the frame at the center of the screen
-                frame_x = (640 - frame_rect.width) // 2
-                frame_y = (640 - frame_rect.height) // 2
-
-                # Fill the screen with black color
-
-                self.screen.blit(frame_surface, (frame_x, frame_y))
+                # frame_rect = frame_surface.get_rect()
+                # # Calculate the position to place the frame at the center of the screen
+                # frame_x = (640 - frame_rect.width) // 2
+                # frame_y = (640 - frame_rect.height) // 2
+                # # Fill the screen with black color
+                # self.screen.blit(frame_surface, (frame_x, frame_y))
 
                 self.update_arrows()
                 self.draw_arrows()
