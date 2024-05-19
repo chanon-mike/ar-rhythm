@@ -38,7 +38,8 @@ class Game:
     def init_heart(self):
         frame_width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         frame_height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        self.heart = Heart(frame_width // 2, frame_height // 2)  # Center the heart
+        self.heart = Heart(frame_width // 2, frame_height //
+                           2)  # Center the heart
 
     # TODO: Generate arrows method
     def init_arrows(self):
@@ -67,7 +68,8 @@ class Game:
                 if not success:
                     continue
 
-                image, wrist_coords, index_finger_tip_coords = self.motion.process_hand(image, hands)
+                image, wrist_coords, index_finger_tip_coords = self.motion.process_hand(
+                    image, hands)
                 image = cv2.flip(image, 1)
 
                 # Convert the image from OpenCV to Pygame format
@@ -85,7 +87,8 @@ class Game:
                 # self.screen.blit(frame_surface, (frame_x, frame_y))
 
                 # Detect the direction of the hand
-                direction = self.motion.calculate_direction(wrist_coords, index_finger_tip_coords)
+                direction = self.motion.calculate_direction(
+                    wrist_coords, index_finger_tip_coords)
                 self.detect_and_collide(direction)
 
                 self.update_arrows()
@@ -129,4 +132,3 @@ class Game:
     def _quit(self):
         self.cap.release()
         pygame.quit()
-
