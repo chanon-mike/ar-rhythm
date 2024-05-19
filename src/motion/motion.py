@@ -50,10 +50,6 @@ class Motion:
                     1 - index_finger_tip.y,
                 )
 
-                direction = self.calculate_direction(wrist_coords, index_finger_tip_coords)
-
-                # Add the direction text to the image
-                
         return image, wrist_coords, index_finger_tip_coords
 
     # Calculate direction of hand based on the wrist and index finger tip coordinates

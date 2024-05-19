@@ -57,7 +57,6 @@ class Game:
                     continue
 
                 image, wrist_coords, index_finger_tip_coords = self.motion.process_hand(image, hands)
-                image = cv2.flip(image, 1)
 
                 # Convert the image from OpenCV to Pygame format
                 image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -72,7 +71,7 @@ class Game:
                 self.update_arrows()
                 self.draw_arrows()
                 self.heart.draw(self.screen)
-                
+
                 self.draw_text(f"Combo: {self.combo}", (10, 10))  # コンボ数を画面の左上に描画
                 self.draw_text(f"Score: {self.score}", (10, 50))  # スコアを画面の左上から50px下に描画
 
@@ -102,7 +101,7 @@ class Game:
 
     def update_arrow_timer(self):
         self.arrow_timer += self.clock.get_time()
-        if self.arrow_timer >= 1000:  # 1000 milliseconds
+        if self.arrow_timer >= 2000:
             self.add_arrow()
             self.arrow_timer = 0
 
