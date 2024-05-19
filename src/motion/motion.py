@@ -53,16 +53,7 @@ class Motion:
                 direction = self.calculate_direction(wrist_coords, index_finger_tip_coords)
 
                 # Add the direction text to the image
-                cv2.putText(
-                    image,
-                    f"Direction: {direction}",
-                    (10, 30),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    1,
-                    (255, 0, 0),
-                    2,
-                    cv2.LINE_AA,
-                )
+                
         return image, wrist_coords, index_finger_tip_coords
 
     # Calculate direction of hand based on the wrist and index finger tip coordinates

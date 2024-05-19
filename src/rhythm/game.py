@@ -15,7 +15,6 @@ IMAGE_SIZE_PX = 100
 class Game:
     def __init__(self, motion: Motion):
         self.motion = motion
-
         self.combo = 0
         self.score = 0
         self.missed = 0
@@ -34,6 +33,11 @@ class Game:
 
         self.init_arrows()
         self.init_heart()
+        self.font = pygame.font.Font(None, 36)
+
+    def draw_text(self, text: str, position: tuple):
+        text_surface = self.font.render(text, True, (255, 255, 255))  # テキストを描画
+        self.screen.blit(text_surface, position)  # 画面にテキストを描画
 
     def init_heart(self):
         frame_width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -91,6 +95,9 @@ class Game:
                 self.update_arrows()
                 self.draw_arrows()
                 self.heart.draw(self.screen)
+                
+                self.draw_text(f"Combo: {self.combo}", (10, 10))  # コンボ数を画面の左上に描画
+                self.draw_text(f"Score: {self.score}", (10, 50))  # スコアを画面の左上から50px下に描画
 
                 pygame.display.update()
 
