@@ -8,9 +8,6 @@ from motion.motion import Motion
 from rhythm.arrow import DownArrow, LeftArrow, RightArrow, UpArrow
 from rhythm.heart import Heart
 
-SPEED_PX = 3.67
-IMAGE_SIZE_PX = 100
-
 
 class Game:
     def __init__(self, motion: Motion):
@@ -133,7 +130,12 @@ class Game:
                 self.remove_arrow()
                 return
 
-            if arrow.rect.colliderect(self.heart.rect):
+            if arrow.rect.colliderect(self.heart.rect) and (
+                (direction != "UP" and isinstance(arrow, DownArrow))
+                or (direction != "DOWN" and isinstance(arrow, UpArrow))
+                or (direction != "LEFT" and isinstance(arrow, RightArrow))
+                or (direction != "RIGHT" and isinstance(arrow, LeftArrow))
+            ):
                 self.reset_combo()
                 return
 
