@@ -4,6 +4,7 @@ import pygame
 
 from motion.motion import Motion
 from rhythm.arrow import DownArrow, LeftArrow, RightArrow, UpArrow
+from rhythm.heart import Heart
 
 
 class Game:
@@ -23,6 +24,12 @@ class Game:
         self.clock = pygame.time.Clock()
 
         self.init_arrows()
+        self.init_heart()
+
+    def init_heart(self):
+        frame_width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        frame_height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        self.heart = Heart(frame_width // 2, frame_height // 2)  # Center the heart
 
     # TODO: Generate arrows method
     def init_arrows(self):
@@ -62,6 +69,7 @@ class Game:
 
                 self.update_arrows()
                 self.draw_arrows()
+                self.heart.draw(self.screen)
 
                 pygame.display.update()
 
