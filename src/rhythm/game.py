@@ -9,6 +9,9 @@ from rhythm.arrow import DownArrow, LeftArrow, RightArrow, UpArrow
 from rhythm.heart import Heart
 
 
+ARROW_TIMER_MS = 1800
+
+
 class Game:
     def __init__(self, motion: Motion):
         self.motion = motion
@@ -22,7 +25,7 @@ class Game:
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
 
         pygame.init()
-        pygame.display.set_caption("OpenCV camera stream on Pygame")
+        pygame.display.set_caption("Don't Break Heart")
 
         self.screen = pygame.display.set_mode((640, 640), pygame.SCALED)
         self.clock = pygame.time.Clock()
@@ -97,7 +100,7 @@ class Game:
 
     def update_arrow_timer(self):
         self.arrow_timer += self.clock.get_time()
-        if self.arrow_timer >= 2000:
+        if self.arrow_timer >= ARROW_TIMER_MS:
             self.add_arrow()
             self.arrow_timer = 0
 

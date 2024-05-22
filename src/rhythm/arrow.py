@@ -1,6 +1,6 @@
 import pygame
 
-SPEED_PX = 2.5
+SPEED_PX = 3.2
 IMAGE_SIZE_PX = 50
 
 
